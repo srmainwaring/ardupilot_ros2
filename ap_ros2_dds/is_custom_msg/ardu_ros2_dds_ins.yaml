@@ -1,0 +1,42 @@
+types:
+    idls:
+        - >
+            struct APINS
+            {
+                boolean gyroHealthy;
+                uint8 gyroCount;
+                float gyroX;
+                float gyroY;
+                float gyroZ;
+                boolean accelHealthy;
+                uint8 accelCount;
+                float accelX;
+                float accelY;
+                float accelZ;
+            };
+systems:
+    dds: { type: fastdds }
+    ros2: { type: ros2 }
+
+routes:
+    dds_to_ros2: { from: dds, to: ros2 }
+    ros2_to_dds: { from: ros2, to: dds }
+
+topics:
+    hello_dds: {
+        type: "ap_custom_interfaces/APINS",
+        route: ros2_to_dds,
+        remap: {
+            dds: { type: APINS, topic: AP_INSTopic },
+            ros2: { topic: "AP_INSTopic" }
+        }
+    }
+
+    hello_ros2: {
+        type: "ap_custom_interfaces/APINS",
+        route: dds_to_ros2,
+        remap: {
+            dds: { type: APINS, topic: AP_INSTopic },
+            ros2: { topic: "AP_INSTopic" }
+        }
+    }

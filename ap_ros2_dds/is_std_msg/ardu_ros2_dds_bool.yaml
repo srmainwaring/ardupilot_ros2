@@ -1,0 +1,33 @@
+types:
+    idls:
+        - >
+            struct Bool
+            {
+                boolean data;
+            };
+systems:
+    dds: { type: fastdds }
+    ros2: { type: ros2 }
+
+routes:
+    dds_to_ros2: { from: dds, to: ros2 }
+    ros2_to_dds: { from: ros2, to: dds }
+
+topics:
+    hello_dds: {
+        type: "std_msgs/Bool",
+        route: ros2_to_dds,
+        remap: {
+            dds: { type: Bool, topic: AP_ROS2_Bool },
+            ros2: { topic: "AP_ROS2_Bool" }
+        }
+    }
+
+    hello_ros2: {
+        type: "std_msgs/Bool",
+        route: dds_to_ros2,
+        remap: {
+            dds: { type: Bool, topic: AP_ROS2_Bool },
+            ros2: { topic: "AP_ROS2_Bool" }
+        }
+    }
