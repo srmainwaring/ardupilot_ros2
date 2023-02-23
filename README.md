@@ -13,7 +13,7 @@ Exact content of this repository are as follows:
 ## Prerequisites
 The following things are required before cloning this repository :
 
-- ROS2 Foxy : https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html
+- ROS2 Humble : https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html
 - Clone this particular fork of Ardupilot : 
     - https://github.com/arshPratap/ardupilot
    
@@ -26,11 +26,11 @@ The following things are required before cloning this repository :
 ## Workspace Setup
 Create your own ROS-2 workspace as 
 ``` 
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 mkdir -p ~/ros_ws/src
 cd ~/ros_ws/src
 ```
-For more details regarding a ROS-2 workspace,you can refer this [link](https://docs.ros.org/en/foxy/Tutorials/Workspace/Creating-A-Workspace.html) 
+For more details regarding a ROS-2 workspace,you can refer this [link](https://docs.ros.org/en/humble/Tutorials/Workspace/Creating-A-Workspace.html) 
 ## Installation for testing with XRCE-DDS Agent
 ### Build and Install the Custom Interfaces
 ```
@@ -40,7 +40,7 @@ colcon build --packages-select ap_custom_interfaces
 ```
 In a new terminal
 ```
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 cd ~/ros_ws
 . install/setup.bash
 ros2 pkg list
@@ -59,7 +59,7 @@ colcon build --packages-select ap_custom_msg_subscribers ap_std_msg_subscribers 
 
 In a new terminal
 ```
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 cd ~/ros_ws
 . install/setup.bash
 ```
@@ -73,7 +73,7 @@ colcon build
 ```
 In a new terminal
 ```
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 cd ~/ros_ws
 . install/setup.bash
 ros2 pkg list
