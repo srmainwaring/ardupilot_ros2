@@ -62,6 +62,9 @@ ament_target_dependencies(float64_listener rclcpp std_msgs)
 add_executable(string_listener src/APStringSubscriber.cpp)
 ament_target_dependencies(string_listener rclcpp std_msgs)
 
+add_executable(time_listener src/APTimeSubscriber.cpp)
+ament_target_dependencies(time_listener rclcpp std_msgs)
+
 install(TARGETS
   bool_listener
   byte_listener
@@ -77,6 +80,7 @@ install(TARGETS
   float64_listener
   char_listener
   string_listener
+  time_listener
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
