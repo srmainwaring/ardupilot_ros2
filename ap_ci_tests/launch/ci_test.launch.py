@@ -1,7 +1,39 @@
 from launch import LaunchDescription
+
 from launch_ros.actions import Node
 
+from launch.actions import (
+    DeclareLaunchArgument,
+    EmitEvent,
+    ExecuteProcess,
+    LogInfo,
+    RegisterEventHandler,
+    TimerAction,
+)
+from launch.conditions import IfCondition
+from launch.event_handlers import (
+    OnExecutionComplete,
+    OnProcessExit,
+    OnProcessIO,
+    OnProcessStart,
+    OnShutdown,
+)
+from launch.events import Shutdown
+from launch.substitutions import (
+    EnvironmentVariable,
+    FindExecutable,
+    LaunchConfiguration,
+    LocalSubstitution,
+    PythonExpression,
+)
+
+# from ament_index_python.packages import get_package_share_directory
+
 """
+Launch files
+https://roboticscasual.com/tutorial-ros2-launch-files-all-you-need-to-know/
+https://docs.ros.org/en/humble/Tutorials/Intermediate/Launch/Using-Event-Handlers.html
+
 A. Setup 
 
 Create a directory for the virtual ttys.
@@ -34,14 +66,71 @@ ros2 launch ap_std_msg_subscribers ci_test.launch.py
 
 def generate_launch_description():
 
-    # micro_ros_agent = Node(
-    #     package="micro_ros_agent",
-    #     namespace="",
-    #     executable="micro_ros_agent",
-    #     name="micro_ros_agent",
-    #     output="both",
-    # )
+    home = "/Users/rhys"
+    device = f"{home}/dev/ttyROS"
+    baudrate = 115200
+    # pkg_ardupilot = get_package_directory("ardupilot")
+    pkg_ardupilot = f"{home}/Code/ros2/xrce-dds/ardupilot_ros2_ws/src/ardupilot"
+    print(pkg_ardupilot)
+  
+    dds_profile = f"{pkg_ardupilot}/libraries/AP_DDS/dds_xrce_profile.xml"
+    print(dds_profile)
 
+    # create virtual ports
+    create_ports = ExecuteProcess(
+        cmd=[
+            [
+                "socat ",
+                "-d -d ",
+                f"pty,raw,echo=0,link={device} ",
+                f"pty,raw,echo=0,link={device}0 ",
+            ]
+        ],
+        shell=True,
+        output="both",
+        respawn=False,
+    )
+
+    micro_ros_agent = Node(
+        package="micro_ros_agent",
+        namespace="",
+        executable="micro_ros_agent",
+        name="micro_ros_agent",
+        output="both",
+        arguments=[
+            "serial",
+            "-b",
+            f"{baudrate}",
+            "-D",
+            f"{device}",
+            "-r",
+            f"{dds_profile}",
+        ],
+    )
+
+    # SITL and MAVProxy
+    sim_vehicle_cmd = f"{pkg_ardupilot}/Tools/autotest/sim_vehicle.py"
+    sim_vehicle = ExecuteProcess(
+        cmd=[
+            [
+                f"{sim_vehicle_cmd} ",
+                "-D ",
+                "-v ",
+                "ArduCopter ",
+                "-f ",
+                "quad ",
+                "--enable-xrce-dds ",
+                "-A ",
+                f'"--uartC=uart:{device}0" ',
+                "--console"
+            ]
+        ],
+        shell=True,
+        output="both",
+        respawn=False,
+    )
+
+    # listen to the time topic
     time_listener = Node(
         package="ap_ci_tests",
         namespace="",
@@ -55,4 +144,30 @@ def generate_launch_description():
         # ],
     )
 
-    return LaunchDescription([time_listener])
+    return LaunchDescription(
+        [
+            RegisterEventHandler(
+                event_handler=OnProcessStart(
+                    target_action=create_ports,
+                    on_start=[
+                      LogInfo(msg='create_ports started'),
+
+                      RegisterEventHandler(
+                          event_handler=OnProcessStart(
+                              target_action=micro_ros_agent,
+                              on_start=[
+                                LogInfo(msg='micro_ros_agent started'),
+                                sim_vehicle,
+                                time_listener,
+                              ]
+                          )
+                      ),
+
+                      micro_ros_agent,
+                    ],
+                )
+            ),
+
+            create_ports,
+        ]
+    )

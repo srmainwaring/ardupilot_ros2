@@ -16,15 +16,9 @@
 """
 """
 
-import time
-import typing
-
-# ROS2
-import builtin_interfaces
 import rclpy
 from rclpy.node import Node
 
-from std_msgs.msg import Float64
 from builtin_interfaces.msg import Time
 
 
