@@ -31,23 +31,15 @@ The ROS 2 tutorials contain more details regarding [ROS 2 workspaces](https://do
 ```bash
 cd ~/ros2_ws/src
 wget https://raw.githubusercontent.com/srmainwaring/ardupilot/srmainwaring/ddsPrototype/Tools/scripts/ros2/ros2.repos
-vcs import < ros2.repos
+vcs import --recursive < ros2.repos
 ```
 
 The following steps are not yet automated:
 
-#### 2.1. Ensure the ardupilot submodules are updated
-
-```bash
-cd ~/ros2_ws/src/ardupilot
-git submodule update --init --recursive
-```
-
-#### 2.2. Ensure the microxrcedds_gen submodules are updated and build the tool:
+#### 2.1. Build microxrcedds_gen:
 
 ```bash
 cd ~/ros2_ws/src/microxrcedds_gen
-git submodule update --init --recursive
 ./gradlew assemble
 export PATH=$PATH:$(pwd)/scripts
 ```

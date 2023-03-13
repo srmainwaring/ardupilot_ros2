@@ -61,6 +61,13 @@ jobs:
           ros-humble-ros-base \
           ros-dev-tools
 
+      - name: Install ArduPilot dependencies
+        run: |
+          python -m pip install -U \
+          future \
+          MAVProxy \
+          pymavlink
+
       - name: Build
         run: |
           pushd src
