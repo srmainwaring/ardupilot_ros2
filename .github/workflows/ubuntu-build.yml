@@ -76,11 +76,11 @@ jobs:
         run: |
           pushd src/microxrcedds_gen
           ./gradlew assemble
-          export PATH=$PATH:$(pwd)/scripts
           popd
 
       - name: Build
         run: |
+          export PATH=$PATH:src/microxrcedds_gen/scripts
           source /opt/ros/humble/setup.bash
           colcon build
 
