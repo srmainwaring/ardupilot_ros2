@@ -41,7 +41,7 @@ def generate_launch_description():
                 "ArduCopter ",
                 "-f ",
                 "quad ",
-                "--enable-xrce-dds ",
+                "--enable-dds ",
                 "-A ",
                 f'"--uartC=uart:{device}0" ',
                 f"--add-param-file={dds_param} "
