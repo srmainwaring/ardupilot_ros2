@@ -3,9 +3,9 @@
 <package format="3">
   <name>ap_ci_tests</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="rhys.mainwaring@me.com">rhys</maintainer>
-  <license>TODO: License declaration</license>
+  <description>ROS 2 packages to support DDS integration with ArduPilot</description>
+  <maintainer email="maintainer@ardupilot.org">maintainer</maintainer>
+  <license>GPL-3.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
