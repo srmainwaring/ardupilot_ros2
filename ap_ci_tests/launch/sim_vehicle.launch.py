@@ -9,33 +9,38 @@ from launch.actions import ExecuteProcess
 
 
 """
-Run simulation
+Usage
+-----
 
-sim_vehicle.py -D -v ArduCopter -f quad \
-  --enable-xrce-dds \
-  -A "--uartC=uart:$HOME/dev/ttyROS0" \
+ros2 launch ap_ci_tests sim_vehicle.launch.py
+
+
+Details
+-------
+
+The launch file starts ardupilot SITL loading parameters from the yaml
+file ./config/ardupilot-dds.yaml. It is equivalent to the following command.
+
+./src/ardupilot/Tools/autotest/sim_vehicle.py \
+  -D -v ArduCopter \
+  -f quad \
+  --enable-dds \
+  -A "--uartC=uart:./dev/ttyROS1" \
   --add-param-file=./config/dds.parm \
   --console
 """
 
 
 def generate_launch_description():
-    # TODO(srmainwaring) remove
-    home = "/Users/rhys"
 
     # default params
-    ap_serial_device = f"{home}/dev/ttyROS1"
+    ap_sim_vehicle_cmd = "sim_vehicle.py"
+    ap_serial_device = f"./dev/ttyROS1"
     ap_serial_baud = 115200
     ap_vehicle = "ArduCopter"
     ap_frame = "quad"
 
-    # TODO(srmainwaring) use ament for get package directory
-    pkg_ardupilot = f"{home}/Code/ros2/xrce-dds/ardupilot_ros2_ws/src/ardupilot"
-    print(pkg_ardupilot)
-
-    # TODO(srmainwaring) set env hook to place sim_vehicle.py in path
-    sim_vehicle_cmd = f"{pkg_ardupilot}/Tools/autotest/sim_vehicle.py"
-
+    pkg_ardupilot = get_package_share_directory("ardupilot")
     pkg_ap_ci_tests = get_package_share_directory("ap_ci_tests")
 
     # The micro_ros_agent and ardupilot nodes do not expose params
@@ -49,9 +54,10 @@ def generate_launch_description():
 
         ap_params = params["/ardupilot"]
         if ap_params:
+            ap_sim_vehicle_cmd = ap_params["sim_vehicle_cmd"]
             ap_vehicle = ap_params["vehicle"]
             ap_frame = ap_params["frame"]
-            # ap_serial_device = ap_params["serial_device"]
+            ap_serial_device = ap_params["serial_device"]
             ap_serial_baud = ap_params["serial_baud"]
 
     # SITL and MAVProxy
@@ -60,7 +66,7 @@ def generate_launch_description():
     ardupilot = ExecuteProcess(
         cmd=[
             [
-                f"{sim_vehicle_cmd} ",
+                f"{ap_sim_vehicle_cmd} ",
                 "-D ",
                 "-v ",
                 f"{ap_vehicle} ",

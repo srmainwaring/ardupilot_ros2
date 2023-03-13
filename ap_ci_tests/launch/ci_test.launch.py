@@ -2,6 +2,7 @@ import os
 import yaml
 
 from ament_index_python.packages import get_package_share_directory
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import (
@@ -12,76 +13,79 @@ from launch.actions import (
 from launch.event_handlers import (
     OnProcessStart,
 )
-from launch.substitutions import (
-    EnvironmentVariable,
-    FindExecutable,
-    LaunchConfiguration,
-    LocalSubstitution,
-    PythonExpression,
-    TextSubstitution,
-)
-
-# from ament_index_python.packages import get_package_share_directory
 
 """
-A. Setup 
+Usage
+-----
 
-Create a directory for the virtual ttys.
+1. Setup 
 
-mkdir $HOME/dev
+Create a `dev` directory in the workspace for the virtual ttys.
 
-B. Run
+mkdir -p ./dev
+
+2. Run
+
+ros2 launch ap_ci_tests ci_test.launch.py
+
+
+Details
+-------
+
+The launch file starts the following processes / nodes and uses the launch
+event handler to ensure the nodes are started in the correct sequence.
+The launch file is equivalent to running the following on the command line
+from the workspace directory.
 
 1. Run socat
 
-socat -d -d -v pty,raw,echo=0,link=$HOME/dev/ttyROS pty,raw,echo=0,link=$HOME/dev/ttyROS0
+socat -d -d -v pty,raw,echo=0,link=./dev/ttyROS0 pty,raw,echo=0,link=./dev/ttyROS1
+
+We use the symlinks to the ttys created in ./dev to pass the serial ports to
+the micro_ros_agent and ardupilot SITL.
 
 2. Run micro_ros_agent
 
 ros2 run micro_ros_agent micro_ros_agent \
-  serial -b 115200 -D $HOME/dev/ttyROS \
+  serial -b 115200 -D ./dev/ttyROS0 \
   -r ./src/ardupilot/libraries/AP_XRCE_Client/dds_xrce_profile.xml
 
 3. Run simulation
 
-../Tools/autotest/sim_vehicle.py \
-  -D --enable-xrce-dds \
-  -A "--uartC=uart:$HOME/dev/ttyROS0" \
+./src/ardupilot/Tools/autotest/sim_vehicle.py \
+  -D -v ArduCopter \
+  -f quad \
+  --enable-dds \
+  -A "--uartC=uart:./dev/ttyROS1" \
   --add-param-file=./config/dds.parm \
   --console
 
-4. Run test node
+4. Run test node that listens to /ROS_Time
 
-ros2 launch ap_std_msg_subscribers ci_test.launch.py
+ros2 run ap_ci_tests time_listener
 
 """
 
 
 def generate_launch_description():
-    # TODO(srmainwaring) remove
-    home = "/Users/rhys"
+
+    # TODO(srmainwaring) set env hook in ardupilot cmake
+    #     to place sim_vehicle.py in path?
+    # TODO(srmainwaring) add install target in ardupilot cmake
+    #     to copy mra_refs_file to config?
 
     # default params
-    mra_serial_device = f"{home}/dev/ttyROS0"
+    mra_serial_device = f"./dev/ttyROS0"
     mra_serial_baud = 115200
-    mra_refs_file = ""
+    mra_refs_file = "dds_xrce_profile.xml"
 
-    ap_serial_device = f"{home}/dev/ttyROS1"
+    ap_sim_vehicle_cmd = "sim_vehicle.py"
+    ap_serial_device = f"./dev/ttyROS1"
     ap_serial_baud = 115200
     ap_vehicle = "ArduCopter"
     ap_frame = "quad"
 
-    # TODO(srmainwaring) use ament for get package directory
-    pkg_ardupilot = f"{home}/Code/ros2/xrce-dds/ardupilot_ros2_ws/src/ardupilot"
-    print(pkg_ardupilot)
-
-    # TODO(srmainwaring) install to config?
-    mra_refs_file = f"{pkg_ardupilot}/libraries/AP_DDS/dds_xrce_profile.xml"
-    print(mra_refs_file)
-
-    # TODO(srmainwaring) set env hook to place sim_vehicle.py in path
-    sim_vehicle_cmd = f"{pkg_ardupilot}/Tools/autotest/sim_vehicle.py"
-
+    pkg_ardupilot = get_package_share_directory("ardupilot")
     pkg_ap_ci_tests = get_package_share_directory("ap_ci_tests")
 
     # The micro_ros_agent and ardupilot nodes do not expose params
@@ -96,16 +100,16 @@ def generate_launch_description():
         mra_params = params["/micro_ros_agent"]
         if mra_params["transport"] == "serial":
             mra_serial_baud = f"{mra_params['serial_baud']}"
-            # mra_serial_device = f"{mra_params['serial_device']}"
-            # mra_refs_file = f"{mra_params['refs_file']}"
+            mra_serial_device = f"{mra_params['serial_device']}"
+            mra_refs_file = f"{mra_params['refs_file']}"
 
         ap_params = params["/ardupilot"]
         if ap_params:
+            ap_sim_vehicle_cmd = ap_params["sim_vehicle_cmd"]
             ap_vehicle = ap_params["vehicle"]
             ap_frame = ap_params["frame"]
-            # ap_serial_device = ap_params["serial_device"]
+            ap_serial_device = ap_params["serial_device"]
             ap_serial_baud = ap_params["serial_baud"]
-
 
     # create virtual ports
     create_ports = ExecuteProcess(
@@ -144,7 +148,7 @@ def generate_launch_description():
     ardupilot = ExecuteProcess(
         cmd=[
             [
-                f"{sim_vehicle_cmd} ",
+                f"{ap_sim_vehicle_cmd} ",
                 "-D ",
                 "-v ",
                 f"{ap_vehicle} ",
