@@ -162,7 +162,6 @@ def generate_launch_description():
                 "-A ",
                 f'"--uartC=uart:{ap_serial_device}" ',
                 f"--add-param-file={dds_param_file} ",
-                "--console",
             ]
         ],
         shell=True,
