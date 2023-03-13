@@ -41,9 +41,6 @@ jobs:
       - name: Show CMake version
         run: cmake --version
 
-      # - name: Show protobuf compiler version
-      #   run: protoc --version
-
       - name: Install Build Tools
         run: |
           sudo sh -c 'echo "deb http://packages.ros.org/ros2/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros2-latest.list'
@@ -68,20 +65,26 @@ jobs:
           MAVProxy \
           pymavlink
 
-      - name: Build
+      - name: Get ROS dependencies
         run: |
           pushd src
           wget https://raw.githubusercontent.com/srmainwaring/ardupilot/srmainwaring/ddsPrototype/Tools/scripts/ros2/ros2.repos
           vcs import --recursive --skip-existing < ros2.repos
           popd
+
+      - name: Build microxrcedds_gen
+        run: |
           pushd src/microxrcedds_gen
           ./gradlew assemble
           export PATH=$PATH:$(pwd)/scripts
           popd
-          mkdir dev
+
+      - name: Build
+        run: |
           source /opt/ros/humble/setup.bash
           colcon build
 
       - name: Test
         run: |
+          mkdir dev
           source ./install/setup.bash
