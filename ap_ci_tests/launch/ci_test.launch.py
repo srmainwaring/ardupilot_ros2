@@ -1,4 +1,8 @@
+import os
+
 from launch import LaunchDescription
+
+from ament_index_python.packages import get_package_share_directory
 
 from launch_ros.actions import Node
 
@@ -30,18 +34,11 @@ from launch.substitutions import (
 # from ament_index_python.packages import get_package_share_directory
 
 """
-Launch files
-https://roboticscasual.com/tutorial-ros2-launch-files-all-you-need-to-know/
-https://docs.ros.org/en/humble/Tutorials/Intermediate/Launch/Using-Event-Handlers.html
-
 A. Setup 
 
 Create a directory for the virtual ttys.
 
 mkdir $HOME/dev
-
-https://stackoverflow.com/questions/49847650/how-to-determine-which-pair-of-pseudo-tty-ports-are-connected-to-each-other
-https://nlamprian.me/blog/software/ros/2019/04/14/ros-node-configuration/
 
 B. Run
 
@@ -51,11 +48,17 @@ socat -d -d -v pty,raw,echo=0,link=$HOME/dev/ttyROS pty,raw,echo=0,link=$HOME/de
 
 2. Run micro_ros_agent
 
-ros2 run micro_ros_agent micro_ros_agent serial -b 115200 -D $HOME/dev/ttyROS -r ./src/ardupilot/libraries/AP_XRCE_Client/dds_xrce_profile.xml
+ros2 run micro_ros_agent micro_ros_agent \
+  serial -b 115200 -D $HOME/dev/ttyROS \
+  -r ./src/ardupilot/libraries/AP_XRCE_Client/dds_xrce_profile.xml
 
 3. Run simulation
 
- ../Tools/autotest/sim_vehicle.py -D --enable-xrce-dds -A "--uartC=uart:$HOME/dev/ttyROS0" --console
+../Tools/autotest/sim_vehicle.py \
+  -D --enable-xrce-dds \
+  -A "--uartC=uart:$HOME/dev/ttyROS0" \
+  --add-param-file=./config/dds.parm \
+  --console
 
 4. Run test node
 
@@ -65,19 +68,29 @@ ros2 launch ap_std_msg_subscribers ci_test.launch.py
 
 
 def generate_launch_description():
-
+    # TODO(srmainwaring) remove
     home = "/Users/rhys"
+
+    # TODO(srmainwaring) resolve params from config/config.yaml
+    # params
     device = f"{home}/dev/ttyROS"
     baudrate = 115200
-    # pkg_ardupilot = get_package_directory("ardupilot")
+    vehicle = "ArduCopter"
+    frame = "quad"
+
+    # TODO(srmainwaring) use ament for get package directory
     pkg_ardupilot = f"{home}/Code/ros2/xrce-dds/ardupilot_ros2_ws/src/ardupilot"
     print(pkg_ardupilot)
-  
-    pkg_ap_ci_tests = f"{home}/Code/ros2/xrce-dds/ardupilot_ros2_ws/src/ardupilot_ros2/ap_ci_tests"
-    print(pkg_ap_ci_tests)
 
-    dds_profile = f"{pkg_ardupilot}/libraries/AP_DDS/dds_xrce_profile.xml"
-    print(dds_profile)
+    # TODO(srmainwaring) install to config?
+    dds_profile_file = f"{pkg_ardupilot}/libraries/AP_DDS/dds_xrce_profile.xml"
+    print(dds_profile_file)
+
+    # TODO(srmainwaring) set env hook to place sim_vehicle.py in path
+    sim_vehicle_cmd = f"{pkg_ardupilot}/Tools/autotest/sim_vehicle.py"
+
+    pkg_ap_ci_tests = get_package_share_directory("ap_ci_tests")
+    print(pkg_ap_ci_tests)
 
     # create virtual ports
     create_ports = ExecuteProcess(
@@ -107,29 +120,26 @@ def generate_launch_description():
             "-D",
             f"{device}",
             "-r",
-            f"{dds_profile}",
+            f"{dds_profile_file}",
         ],
     )
 
     # SITL and MAVProxy
-    dds_param = f"{pkg_ap_ci_tests}/config/dds.parm"
-    print(dds_param)
-
-    sim_vehicle_cmd = f"{pkg_ardupilot}/Tools/autotest/sim_vehicle.py"
+    dds_param_file = os.path.join(pkg_ap_ci_tests, "config", "dds.parm")
     sim_vehicle = ExecuteProcess(
         cmd=[
             [
                 f"{sim_vehicle_cmd} ",
                 "-D ",
                 "-v ",
-                "ArduCopter ",
+                f"{vehicle} ",
                 "-f ",
-                "quad ",
+                f"{frame} ",
                 "--enable-dds ",
                 "-A ",
                 f'"--uartC=uart:{device}0" ',
-                f"--add-param-file={dds_param} "
-                "--console"
+                f"--add-param-file={dds_param_file} ",
+                "--console",
             ]
         ],
         shell=True,
@@ -144,11 +154,6 @@ def generate_launch_description():
         executable="time_listener",
         name="time_listener",
         output="both",
-        arguments=[],
-        parameters=[],
-        # remappings=[
-        #     ("/topic", "/ROS2_Topic"),
-        # ],
     )
 
     return LaunchDescription(
@@ -157,24 +162,21 @@ def generate_launch_description():
                 event_handler=OnProcessStart(
                     target_action=create_ports,
                     on_start=[
-                      LogInfo(msg='create_ports started'),
-
-                      RegisterEventHandler(
-                          event_handler=OnProcessStart(
-                              target_action=micro_ros_agent,
-                              on_start=[
-                                LogInfo(msg='micro_ros_agent started'),
-                                sim_vehicle,
-                                time_listener,
-                              ]
-                          )
-                      ),
-
-                      micro_ros_agent,
+                        LogInfo(msg="create_ports started"),
+                        RegisterEventHandler(
+                            event_handler=OnProcessStart(
+                                target_action=micro_ros_agent,
+                                on_start=[
+                                    LogInfo(msg="micro_ros_agent started"),
+                                    sim_vehicle,
+                                    time_listener,
+                                ],
+                            )
+                        ),
+                        micro_ros_agent,
                     ],
                 )
             ),
-
             create_ports,
         ]
     )
