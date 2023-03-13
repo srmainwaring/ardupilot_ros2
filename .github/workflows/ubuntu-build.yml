@@ -89,5 +89,6 @@ jobs:
         run: |
           mkdir dev
           source ./install/setup.bash
+          export PATH=$PATH:$(pwd)/src/microxrcedds_gen/scripts
           ros2 launch ap_ci_tests ci_test.launch.py
 
