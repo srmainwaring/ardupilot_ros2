@@ -47,7 +47,11 @@ def main(args=None):
     rclpy.init(args=args)
     node = TimeListener()
     try:
-        rclpy.spin(node)
+        count = 0
+        while count < 100:
+            rclpy.spin_once(node)
+            count += 1
+
     except KeyboardInterrupt:
         pass
 

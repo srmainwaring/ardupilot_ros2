@@ -6,12 +6,15 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import (
+    EmitEvent,
     ExecuteProcess,
     LogInfo,
     RegisterEventHandler,
 )
+from launch.events import Shutdown
 from launch.event_handlers import (
     OnProcessStart,
+    OnProcessExit,
 )
 
 """
@@ -175,27 +178,43 @@ def generate_launch_description():
         output="both",
     )
 
+    # event handlers
+    on_exit_time_listener = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=time_listener,
+            on_exit=[
+                LogInfo(msg="time_listener exited"),
+                EmitEvent(event=Shutdown(reason="Test completed")),
+            ],
+        )
+    )
+
+    on_start_micro_ros_agent = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=micro_ros_agent,
+            on_start=[
+                LogInfo(msg="micro_ros_agent started"),
+                ardupilot,
+                time_listener,
+                on_exit_time_listener,
+            ],
+        )
+    )
+
+    on_start_create_ports = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=create_ports,
+            on_start=[
+                LogInfo(msg="create_ports started"),
+                micro_ros_agent,
+                on_start_micro_ros_agent,
+            ],
+        )
+    )
+
     return LaunchDescription(
         [
-            RegisterEventHandler(
-                event_handler=OnProcessStart(
-                    target_action=create_ports,
-                    on_start=[
-                        LogInfo(msg="create_ports started"),
-                        RegisterEventHandler(
-                            event_handler=OnProcessStart(
-                                target_action=micro_ros_agent,
-                                on_start=[
-                                    LogInfo(msg="micro_ros_agent started"),
-                                    ardupilot,
-                                    time_listener,
-                                ],
-                            )
-                        ),
-                        micro_ros_agent,
-                    ],
-                )
-            ),
             create_ports,
+            on_start_create_ports,
         ]
     )
