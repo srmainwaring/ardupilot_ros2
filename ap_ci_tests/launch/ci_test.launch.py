@@ -1,34 +1,24 @@
 import os
-
-from launch import LaunchDescription
+import yaml
 
 from ament_index_python.packages import get_package_share_directory
-
+from launch import LaunchDescription
 from launch_ros.actions import Node
-
 from launch.actions import (
-    DeclareLaunchArgument,
-    EmitEvent,
     ExecuteProcess,
     LogInfo,
     RegisterEventHandler,
-    TimerAction,
 )
-from launch.conditions import IfCondition
 from launch.event_handlers import (
-    OnExecutionComplete,
-    OnProcessExit,
-    OnProcessIO,
     OnProcessStart,
-    OnShutdown,
 )
-from launch.events import Shutdown
 from launch.substitutions import (
     EnvironmentVariable,
     FindExecutable,
     LaunchConfiguration,
     LocalSubstitution,
     PythonExpression,
+    TextSubstitution,
 )
 
 # from ament_index_python.packages import get_package_share_directory
@@ -71,26 +61,51 @@ def generate_launch_description():
     # TODO(srmainwaring) remove
     home = "/Users/rhys"
 
-    # TODO(srmainwaring) resolve params from config/config.yaml
-    # params
-    device = f"{home}/dev/ttyROS"
-    baudrate = 115200
-    vehicle = "ArduCopter"
-    frame = "quad"
+    # default params
+    mra_serial_device = f"{home}/dev/ttyROS0"
+    mra_serial_baud = 115200
+    mra_refs_file = ""
+
+    ap_serial_device = f"{home}/dev/ttyROS1"
+    ap_serial_baud = 115200
+    ap_vehicle = "ArduCopter"
+    ap_frame = "quad"
 
     # TODO(srmainwaring) use ament for get package directory
     pkg_ardupilot = f"{home}/Code/ros2/xrce-dds/ardupilot_ros2_ws/src/ardupilot"
     print(pkg_ardupilot)
 
     # TODO(srmainwaring) install to config?
-    dds_profile_file = f"{pkg_ardupilot}/libraries/AP_DDS/dds_xrce_profile.xml"
-    print(dds_profile_file)
+    mra_refs_file = f"{pkg_ardupilot}/libraries/AP_DDS/dds_xrce_profile.xml"
+    print(mra_refs_file)
 
     # TODO(srmainwaring) set env hook to place sim_vehicle.py in path
     sim_vehicle_cmd = f"{pkg_ardupilot}/Tools/autotest/sim_vehicle.py"
 
     pkg_ap_ci_tests = get_package_share_directory("ap_ci_tests")
-    print(pkg_ap_ci_tests)
+
+    # The micro_ros_agent and ardupilot nodes do not expose params
+    # as ROS params, parse the config file and send them in as node args.
+    params = os.path.join(pkg_ap_ci_tests, "config", "ardupilot-dds.yaml")
+
+    with open(params, "r") as f:
+        params_str = f.read()
+        params = yaml.safe_load(params_str)
+        print(params)
+
+        mra_params = params["/micro_ros_agent"]
+        if mra_params["transport"] == "serial":
+            mra_serial_baud = f"{mra_params['serial_baud']}"
+            # mra_serial_device = f"{mra_params['serial_device']}"
+            # mra_refs_file = f"{mra_params['refs_file']}"
+
+        ap_params = params["/ardupilot"]
+        if ap_params:
+            ap_vehicle = ap_params["vehicle"]
+            ap_frame = ap_params["frame"]
+            # ap_serial_device = ap_params["serial_device"]
+            ap_serial_baud = ap_params["serial_baud"]
+
 
     # create virtual ports
     create_ports = ExecuteProcess(
@@ -98,8 +113,8 @@ def generate_launch_description():
             [
                 "socat ",
                 "-d -d ",
-                f"pty,raw,echo=0,link={device} ",
-                f"pty,raw,echo=0,link={device}0 ",
+                f"pty,raw,echo=0,link={mra_serial_device} ",
+                f"pty,raw,echo=0,link={ap_serial_device} ",
             ]
         ],
         shell=True,
@@ -116,28 +131,28 @@ def generate_launch_description():
         arguments=[
             "serial",
             "-b",
-            f"{baudrate}",
+            f"{mra_serial_baud}",
             "-D",
-            f"{device}",
+            f"{mra_serial_device}",
             "-r",
-            f"{dds_profile_file}",
+            f"{mra_refs_file}",
         ],
     )
 
     # SITL and MAVProxy
     dds_param_file = os.path.join(pkg_ap_ci_tests, "config", "dds.parm")
-    sim_vehicle = ExecuteProcess(
+    ardupilot = ExecuteProcess(
         cmd=[
             [
                 f"{sim_vehicle_cmd} ",
                 "-D ",
                 "-v ",
-                f"{vehicle} ",
+                f"{ap_vehicle} ",
                 "-f ",
-                f"{frame} ",
+                f"{ap_frame} ",
                 "--enable-dds ",
                 "-A ",
-                f'"--uartC=uart:{device}0" ',
+                f'"--uartC=uart:{ap_serial_device}" ',
                 f"--add-param-file={dds_param_file} ",
                 "--console",
             ]
@@ -168,7 +183,7 @@ def generate_launch_description():
                                 target_action=micro_ros_agent,
                                 on_start=[
                                     LogInfo(msg="micro_ros_agent started"),
-                                    sim_vehicle,
+                                    ardupilot,
                                     time_listener,
                                 ],
                             )

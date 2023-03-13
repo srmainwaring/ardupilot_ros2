@@ -1,4 +1,5 @@
 import os
+import yaml
 
 from ament_index_python.packages import get_package_share_directory
 
@@ -22,11 +23,11 @@ def generate_launch_description():
     # TODO(srmainwaring) remove
     home = "/Users/rhys"
 
-    # TODO(srmainwaring) resolve params from config/config.yaml
-    # params
-    device = f"{home}/dev/ttyROS"
-    vehicle = "ArduCopter"
-    frame = "quad"
+    # default params
+    ap_serial_device = f"{home}/dev/ttyROS1"
+    ap_serial_baud = 115200
+    ap_vehicle = "ArduCopter"
+    ap_frame = "quad"
 
     # TODO(srmainwaring) use ament for get package directory
     pkg_ardupilot = f"{home}/Code/ros2/xrce-dds/ardupilot_ros2_ws/src/ardupilot"
@@ -37,21 +38,37 @@ def generate_launch_description():
 
     pkg_ap_ci_tests = get_package_share_directory("ap_ci_tests")
 
+    # The micro_ros_agent and ardupilot nodes do not expose params
+    # as ROS params, parse the config file and send them in as node args.
+    params = os.path.join(pkg_ap_ci_tests, "config", "ardupilot-dds.yaml")
+
+    with open(params, "r") as f:
+        params_str = f.read()
+        params = yaml.safe_load(params_str)
+        print(params)
+
+        ap_params = params["/ardupilot"]
+        if ap_params:
+            ap_vehicle = ap_params["vehicle"]
+            ap_frame = ap_params["frame"]
+            # ap_serial_device = ap_params["serial_device"]
+            ap_serial_baud = ap_params["serial_baud"]
+
     # SITL and MAVProxy
     dds_param_file = os.path.join(pkg_ap_ci_tests, "config", "dds.parm")
 
-    sim_vehicle = ExecuteProcess(
+    ardupilot = ExecuteProcess(
         cmd=[
             [
                 f"{sim_vehicle_cmd} ",
                 "-D ",
                 "-v ",
-                f"{vehicle} ",
+                f"{ap_vehicle} ",
                 "-f ",
-                f"{frame} ",
+                f"{ap_frame} ",
                 "--enable-dds ",
                 "-A ",
-                f'"--uartC=uart:{device}0" ',
+                f'"--uartC=uart:{ap_serial_device}" ',
                 f"--add-param-file={dds_param_file} ",
                 "--console",
             ]
@@ -61,6 +78,6 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            sim_vehicle,
+            ardupilot,
         ]
     )
