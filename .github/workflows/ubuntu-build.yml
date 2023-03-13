@@ -80,8 +80,8 @@ jobs:
 
       - name: Build
         run: |
-          export PATH=$PATH:src/microxrcedds_gen/scripts
           source /opt/ros/humble/setup.bash
+          export PATH=$PATH:$(pwd)/src/microxrcedds_gen/scripts
           colcon build
 
       - name: Test
