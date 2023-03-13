@@ -10,6 +10,7 @@ from launch.actions import (
     ExecuteProcess,
     LogInfo,
     RegisterEventHandler,
+    TimerAction,
 )
 from launch.events import Shutdown
 from launch.event_handlers import (
@@ -208,6 +209,10 @@ def generate_launch_description():
                 LogInfo(msg="create_ports started"),
                 micro_ros_agent,
                 on_start_micro_ros_agent,
+                TimerAction(
+                    period=60.0,
+                    actions=[EmitEvent(event=Shutdown(reason="Test timed out"))],
+                ),
             ],
         )
     )
