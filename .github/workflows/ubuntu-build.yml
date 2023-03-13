@@ -31,7 +31,8 @@ jobs:
           wget \
           lsb-release \
           gnupg \
-          curl
+          curl \
+          socat
 
       - name: Show Python version and platform info
         run: |
