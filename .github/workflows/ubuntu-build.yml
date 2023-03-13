@@ -65,13 +65,9 @@ jobs:
         run: |
           pushd src
           wget https://raw.githubusercontent.com/srmainwaring/ardupilot/srmainwaring/ddsPrototype/Tools/scripts/ros2/ros2.repos
-          vcs import < ros2.repos
-          popd
-          pushd src/ardupilot
-          git submodule update --init --recursive
+          vcs import --recursive --skip-existing < ros2.repos
           popd
           pushd src/microxrcedds_gen
-          git submodule update --init --recursive
           ./gradlew assemble
           export PATH=$PATH:$(pwd)/scripts
           popd
