@@ -12,10 +12,14 @@ from launch.actions import (
     RegisterEventHandler,
     TimerAction,
 )
-from launch.events import Shutdown
 from launch.event_handlers import (
     OnProcessStart,
     OnProcessExit,
+    OnShutdown,
+)
+from launch.events import Shutdown
+from launch.substitutions import (
+    LocalSubstitution,
 )
 
 """
@@ -216,9 +220,23 @@ def generate_launch_description():
         )
     )
 
+    on_shutdown = RegisterEventHandler(
+        OnShutdown(
+            on_shutdown=[
+                LogInfo(
+                    msg=[
+                        "Launch was asked to shutdown: ",
+                        LocalSubstitution("event.reason"),
+                    ]
+                )
+            ]
+        )
+    )
+
     return LaunchDescription(
         [
             create_ports,
             on_start_create_ports,
+            on_shutdown,
         ]
     )
