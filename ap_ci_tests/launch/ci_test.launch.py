@@ -52,7 +52,7 @@ the micro_ros_agent and ardupilot SITL.
 
 ros2 run micro_ros_agent micro_ros_agent \
   serial -b 115200 -D ./dev/ttyROS0 \
-  -r ./src/ardupilot/libraries/AP_XRCE_Client/dds_xrce_profile.xml
+  -r ./src/ardupilot/libraries/AP_DDS/dds_xrce_profile.xml
 
 3. Run simulation
 
