@@ -17,6 +17,8 @@
 """
 
 import rclpy
+import time
+
 from rclpy.node import Node
 
 from builtin_interfaces.msg import Time
@@ -51,6 +53,7 @@ def main(args=None):
         while count < 100:
             rclpy.spin_once(node)
             count += 1
+            time.sleep(1.0)
 
     except KeyboardInterrupt:
         pass

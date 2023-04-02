@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# disable pep257 tests
-# from ament_pep257.main import main
-# import pytest
-# 
-# 
-# @pytest.mark.linter
-# @pytest.mark.pep257
-# def test_pep257():
-#     rc = main(argv=['.', 'test'])
-#     assert rc == 0, 'Found code style errors / warnings'
+from ament_pep257.main import main
+import pytest
+
+
+@pytest.mark.skip(reason='Source files not tested for pep257.')
+@pytest.mark.linter
+@pytest.mark.pep257
+def test_pep257():
+    rc = main(argv=['.', 'test'])
+    assert rc == 0, 'Found code style errors / warnings'

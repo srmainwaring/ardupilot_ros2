@@ -64,5 +64,5 @@ colcon build
 ```bash
 cd ~/ros2_ws
 source ./install/setup.zsh
-ros2 launch ardupilot_ros2 ci_test.launch.py
+ros2 launch ardupilot_ros2 ap_ci_test.launch.py
 ```
