@@ -69,8 +69,17 @@ ros2 launch ardupilot_ros2 ap_ci_test.launch.py
 
 #### 5. Test:
 
+On Ubuntu ensure the `launch_pytest` package is installed:
+
 ```bash
-colcon test --pytest-args "-v" --event-handlers console_cohesion+ desktop_notification- --packages-select ap_ci_tests
+sudo apt update && sudo apt install ros-humble-launch-pytest
 ```
 
+Run the tests:
 
+ ```bash
+colcon test `
+--pytest-args -s -v \
+--event-handlers console_cohesion+ \
+--packages-select ap_ci_tests
+ ```
