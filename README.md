@@ -75,11 +75,13 @@ On Ubuntu ensure the `launch_pytest` package is installed:
 sudo apt update && sudo apt install ros-humble-launch-pytest
 ```
 
+On macOS `launch_pytest` must be installed from source.
+
 Run the tests:
 
- ```bash
-colcon test `
+```bash
+colcon test
 --pytest-args -s -v \
 --event-handlers console_cohesion+ \
 --packages-select ap_ci_tests
- ```
+```
