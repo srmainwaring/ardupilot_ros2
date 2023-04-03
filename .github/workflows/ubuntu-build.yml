@@ -69,7 +69,7 @@ jobs:
       - name: Get ROS dependencies
         run: |
           pushd src
-          wget https://raw.githubusercontent.com/srmainwaring/ardupilot/srmainwaring/ddsPrototype/Tools/scripts/ros2/ros2.repos
+          wget https://raw.githubusercontent.com/srmainwaring/ardupilot/wip/ros2-pkg-cmake/Tools/scripts/ros2/ros2.repos
           vcs import --recursive --skip-existing < ros2.repos
           popd
 

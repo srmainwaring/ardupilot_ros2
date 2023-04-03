@@ -30,7 +30,7 @@ The ROS 2 tutorials contain more details regarding [ROS 2 workspaces](https://do
 
 ```bash
 cd ~/ros2_ws/src
-wget https://raw.githubusercontent.com/srmainwaring/ardupilot/srmainwaring/ddsPrototype/Tools/scripts/ros2/ros2.repos
+wget https://raw.githubusercontent.com/srmainwaring/ardupilot/wip/ros2-pkg-cmake/Tools/scripts/ros2/ros2.repos
 vcs import --recursive < ros2.repos
 ```
 
@@ -66,3 +66,11 @@ cd ~/ros2_ws
 source ./install/setup.zsh
 ros2 launch ardupilot_ros2 ap_ci_test.launch.py
 ```
+
+#### 5. Test:
+
+```bash
+colcon test --pytest-args "-v" --event-handlers console_cohesion+ desktop_notification- --packages-select ap_ci_tests
+```
+
+
