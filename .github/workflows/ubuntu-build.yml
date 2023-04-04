@@ -87,6 +87,14 @@ jobs:
 
       - name: Test
         run: |
+          source /opt/ros/humble/setup.bash
+          export PATH=$PATH:$(pwd)/src/microxrcedds_gen/scripts
+          colcon test --pytest-args -s -v \
+          --event-handlers console_cohesion+ \
+          --packages-select ap_ci_tests
+
+      - name: Test Launch
+        run: |
           mkdir dev
           source ./install/setup.bash
           export PATH=$PATH:$(pwd)/src/microxrcedds_gen/scripts
