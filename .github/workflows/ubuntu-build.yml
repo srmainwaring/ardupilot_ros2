@@ -96,7 +96,7 @@ jobs:
 
       - name: Test Launch
         run: |
-          mkdir dev
+          mkdir -p dev
           source ./install/setup.bash
           export PATH=$PATH:$(pwd)/src/microxrcedds_gen/scripts
           ros2 launch ap_ci_tests ap_ci_test.launch.py
