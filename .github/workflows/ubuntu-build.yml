@@ -57,6 +57,7 @@ jobs:
           sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
           sudo apt update && sudo apt upgrade && sudo apt install -y \
           ros-humble-ros-base \
+          ros-humble-launch-pytest \
           ros-dev-tools
 
       - name: Install ArduPilot dependencies
