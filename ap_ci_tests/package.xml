@@ -3,31 +3,25 @@
 <package format="3">
   <name>ap_ci_tests</name>
   <version>0.0.0</version>
-  <description>ROS 2 packages to support DDS integration with ArduPilot</description>
+  <description>Tests for the ArduPilot AP_DDS library</description>
   <maintainer email="maintainer@ardupilot.org">maintainer</maintainer>
   <license>GPL-3.0</license>
-
-  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
-  <exec_depend>launch_testing</exec_depend>
-  <exec_depend>micro_ros_agent</exec_depend>
+  <!-- <exec_depend>micro_ros_agent</exec_depend> -->
+  <exec_depend>micro_ros_msgs</exec_depend>
   <exec_depend>python3-pytest</exec_depend>
   <exec_depend>rclpy</exec_depend>
-  <exec_depend>ros2launch</exec_depend>
 
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
   <test_depend>launch</test_depend>
   <test_depend>launch_pytest</test_depend>
   <test_depend>launch_ros</test_depend>
-  <test_depend>launch_testing</test_depend>
+  <!-- <exec_depend>micro_ros_agent</exec_depend> -->
+  <exec_depend>micro_ros_msgs</exec_depend>
   <test_depend>python3-pytest</test_depend>
   <test_depend>rclpy</test_depend>
-  <test_depend>ros2launch</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
