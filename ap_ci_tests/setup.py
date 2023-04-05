@@ -17,9 +17,9 @@ setup(
     ],
     install_requires=["setuptools"],
     zip_safe=True,
-    maintainer="Rhys Mainwaring",
-    maintainer_email="rhys.mainwaring@me.com",
-    description="Continuous integration tests for ArduPilot / ROS2",
+    maintainer="maintainer",
+    maintainer_email="maintainer@ardupilot.org",
+    description="Tests for the ArduPilot AP_DDS library",
     license="GPL-3.0",
     tests_require=["pytest"],
     entry_points={
