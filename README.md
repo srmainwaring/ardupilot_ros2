@@ -52,14 +52,14 @@ mkdir ./dev
 ```
 
 
-#### 3. Build:
+#### 3. Build
 
 ```bash
 cd ~/ros2_ws
 colcon build
 ```
 
-#### 4. Run:
+#### 4. Run
 
 ```bash
 cd ~/ros2_ws
@@ -67,7 +67,7 @@ source ./install/setup.zsh
 ros2 launch ardupilot_ros2 ap_ci_test.launch.py
 ```
 
-#### 5. Test:
+#### 5. Test
 
 On Ubuntu ensure the `launch_pytest` package is installed:
 
