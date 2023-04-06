@@ -19,7 +19,7 @@ Details
 -------
 
 The launch file starts ardupilot SITL loading parameters from the yaml
-file ./config/ardupilot-dds.yaml. It is equivalent to the following command.
+file ./config/ardupilot_dds.yaml. It is equivalent to the following command.
 
 ./src/ardupilot/Tools/autotest/sim_vehicle.py \
   -D -v ArduCopter \
@@ -45,7 +45,7 @@ def generate_launch_description():
 
     # The micro_ros_agent and ardupilot nodes do not expose params
     # as ROS params, parse the config file and send them in as node args.
-    params = os.path.join(pkg_ap_ci_tests, "config", "ardupilot-dds.yaml")
+    params = os.path.join(pkg_ap_ci_tests, "config", "ardupilot_dds.yaml")
 
     with open(params, "r") as f:
         params_str = f.read()

@@ -113,7 +113,7 @@ def generate_test_description():
 
     # The micro_ros_agent and ardupilot nodes do not expose params
     # as ROS params, parse the config file and send them in as node args.
-    params = os.path.join(pkg_ap_ci_tests, "config", "ardupilot-dds.yaml")
+    params = os.path.join(pkg_ap_ci_tests, "config", "ardupilot_dds.yaml")
 
     with open(params, "r") as f:
         params_str = f.read()
