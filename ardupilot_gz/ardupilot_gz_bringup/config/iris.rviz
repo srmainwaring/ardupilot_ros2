@@ -5,6 +5,8 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /RobotModel1
+        - /Odometry1
       Splitter Ratio: 0.5
     Tree Height: 510
   - Class: rviz_common/Selection
@@ -97,7 +99,7 @@ Visualization Manager:
         Inertia: false
         Mass: false
       Name: RobotModel
-      TF Prefix: iris_with_standoffs
+      TF Prefix: iris
       Update Interval: 0
       Value: true
       Visual Enabled: true
@@ -138,12 +140,12 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /iris_with_standoffs/odometry
+        Value: /iris/odometry
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: iris_with_standoffs/odom
+    Fixed Frame: iris/odom
     Frame Rate: 30
   Name: root
   Tools:

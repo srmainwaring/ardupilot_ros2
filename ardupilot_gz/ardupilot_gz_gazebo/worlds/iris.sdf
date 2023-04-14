@@ -48,10 +48,11 @@
       <uri>model://runway</uri>
     </include>
 
-    <model name="iris_with_standoffs">
+    <model name="iris">
       <pose>0 0 0.194923 0 0 0</pose>
       <include merge="true">
         <uri>package://ardupilot_gazebo/models/iris_with_standoffs</uri>
+        <name>iris</name>
       </include>
 
       <plugin
@@ -71,8 +72,8 @@
       <plugin
         filename="gz-sim-odometry-publisher-system"
         name="gz::sim::systems::OdometryPublisher">
-        <odom_frame>iris_with_standoffs/odom</odom_frame>
-        <robot_base_frame>iris_with_standoffs</robot_base_frame>
+        <odom_frame>iris/odom</odom_frame>
+        <robot_base_frame>iris</robot_base_frame>
       </plugin>
 
     </model>
