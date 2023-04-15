@@ -3,7 +3,7 @@
 <package format="3">
   <name>ardupilot_gz_gazebo</name>
   <version>0.0.0</version>
-  <description>Gazebo specific systems ardupilot_gz.</description>
+  <description>Gazebo specific systems for `ardupilot_gz`.</description>
   <maintainer email="rhys.mainwaring@me.com">Rhys Mainwaring</maintainer>
   <license>GPL-3.0</license>
 
