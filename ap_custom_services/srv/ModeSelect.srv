@@ -1,4 +1,4 @@
-int8 mode
+uint8 mode
 ---
 bool status
-int8 curr_mode
+uint8 curr_mode
