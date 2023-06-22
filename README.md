@@ -1,28 +1,21 @@
+### The previous version of the repo has been moved to the [legacy](https://github.com/arshPratap/ardupilot_ros2/tree/legacy/) branch
+
 # ardupilot-ros2
 
-This repository contains Ros2 packages and yaml files for eProsima's Integration services.
+This repository contains ROS-2 packages and yaml files for eProsima's Integration services.
 Exact content of this repository are as follows:
-- [ap_custom_interfaces](https://github.com/arshPratap/ardupilot_ros2/tree/main/ap_custom_interfaces) : Message definitions for ROS 2 to interact with Ardupilot's custom sensor topics
-- [ap_custom_msg_subscribers](https://github.com/arshPratap/ardupilot_ros2/tree/main/ap_custom_msg_subscribers) : ROS2 subscribers for the above mentioned topics 
-- [ap_std_msg_subscribers](https://github.com/arshPratap/ardupilot_ros2/tree/main/ap_std_msg_subscribers) : ROS2 subscribers for std_msg topics
-- [ap_ros2_dds](https://github.com/arshPratap/ardupilot_ros2/tree/main/ap_ros2_dds) : yaml files for eProsima's Integration Services
-    
-    - [is_custom_msg](https://github.com/arshPratap/ardupilot_ros2/tree/main/ap_ros2_dds/is_custom_msg) : yaml files for the Ardupilot's custom sensor topics
-    - [is_std_msg](https://github.com/arshPratap/ardupilot_ros2/tree/main/ap_ros2_dds/is_std_msg) : yaml files for the Ardupilot's std_msg topics
+- [ap_custom_services](https://github.com/arshPratap/ardupilot_ros2/tree/main/ap_custom_services) : ROS2 services for the following services :
+  - [Arming Service](https://github.com/arshPratap/ardupilot_ros2/blob/main/ap_custom_services/srv/ArmMotors.srv) : ROS-2 .srv file for arming the motors
+  - [Mode Select](https://github.com/arshPratap/ardupilot_ros2/blob/main/ap_custom_services/srv/ModeSelect.srv) : ROS-2 .srv file for switching between drive modes
 
 ## Prerequisites
 The following things are required before cloning this repository :
 
 - ROS2 Humble : https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html
-- Clone this particular fork of Ardupilot : 
-    - https://github.com/arshPratap/ardupilot
-   
-  and switch to **ddsPrototype** branch
 - Install the DDS Agent you want to use
     - XRCE-DDS Agent : https://micro-xrce-dds.docs.eprosima.com/en/latest/installation.html#installing-the-agent-standalone
     - MicroROS Agent : https://micro.ros.org/docs/tutorials/core/first_application_linux/
 
-***For Instructions regarding the commands to run on the ArduPilot end, check the README file [here](https://github.com/arshPratap/ardupilot/tree/ddsPrototype/libraries/AP_XRCE_Client#testing-with-ddsmicro-ros)*** 
 ## Workspace Setup
 Create your own ROS-2 workspace as 
 ``` 
@@ -36,7 +29,7 @@ For more details regarding a ROS-2 workspace,you can refer this [link](https://d
 ```
 git clone https://github.com/arshPratap/ardupilot_ros2.git
 cd ~/ros_ws
-colcon build --packages-select ap_custom_interfaces
+colcon build --packages-select ap_custom_services
 ```
 In a new terminal
 ```
@@ -45,37 +38,4 @@ cd ~/ros_ws
 . install/setup.bash
 ros2 pkg list
 ```
-If everything is done right,you should see ap_custom_interfaces listed in the ROS-2 package list
-### Build and Install the Integration Services
-```
-cd src/
-git clone https://github.com/eProsima/Integration-Service.git --recursive
-git clone https://github.com/eProsima/ROS2-SH.git
-git clone https://github.com/eProsima/FastDDS-SH.git
-cd ~/ros_ws
-colcon build --packages-select ap_custom_msg_subscribers ap_std_msg_subscribers --cmake-args -DMIX_ROS2_PACKAGES="ap_custom_interfaces std_msgs"
-```
-*This build might take some time*
-
-In a new terminal
-```
-source /opt/ros/humble/setup.bash
-cd ~/ros_ws
-. install/setup.bash
-```
- - To run the node,simply ```ros2 run <package-name> <node-name>``` (From the root of the workspace directory)
- - To the run the Integration Service , simply ```integration-service src/ardupilot_ros2/ap_ros2_dds/is_custom_msg/ardu_ros2_dds_baro.yaml``` (From the root of the workspace directory) 
-## Installation for testing with Micro-ROS Agent
-After creating your workspace and make sure you are in the src folder of the workspace
-```
-git clone https://github.com/arshPratap/ardupilot_ros2.git
-colcon build
-```
-In a new terminal
-```
-source /opt/ros/humble/setup.bash
-cd ~/ros_ws
-. install/setup.bash
-ros2 pkg list
-```
-If everything is done right,you should see ap_custom_interfaces, ap_custom_msg_subscribers and ap_std_msg_subscribers listed in the ROS-2 package list
+If everything is done right,you should see ap_custom_services listed in the ROS-2 package list
