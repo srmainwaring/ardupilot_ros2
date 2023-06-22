@@ -38,4 +38,4 @@ cd ~/ros_ws
 . install/setup.bash
 ros2 pkg list
 ```
-If everything is done right,you should see ap_custom_services listed in the ROS-2 package list
+If everything is done right,you should see **ap_custom_services** listed in the ROS-2 package list
